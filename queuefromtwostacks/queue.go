@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/marciodojr/datastructures/element"
 	"github.com/marciodojr/datastructures/stack"
 )
 
@@ -22,7 +23,7 @@ func NewQueueFromTwoStacks() *QueueFromTwoStacks {
 }
 
 // Insert a new element
-func (q *QueueFromTwoStacks) Enqueue(e stack.Element) {
+func (q *QueueFromTwoStacks) Enqueue(e element.Element) {
 	q.mx.Lock()
 	defer q.mx.Unlock()
 
@@ -30,7 +31,7 @@ func (q *QueueFromTwoStacks) Enqueue(e stack.Element) {
 }
 
 // Return the oldest element
-func (q *QueueFromTwoStacks) Peek() (stack.Element, error) {
+func (q *QueueFromTwoStacks) Peek() (element.Element, error) {
 	q.mx.RLock()
 	defer q.mx.RUnlock()
 
@@ -48,7 +49,7 @@ func (q *QueueFromTwoStacks) Peek() (stack.Element, error) {
 }
 
 // Remove the oldest element
-func (q *QueueFromTwoStacks) Dequeue() (stack.Element, error) {
+func (q *QueueFromTwoStacks) Dequeue() (element.Element, error) {
 	q.mx.Lock()
 	defer q.mx.Unlock()
 

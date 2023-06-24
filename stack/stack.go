@@ -3,28 +3,28 @@ package stack
 import (
 	"errors"
 	"sync"
+
+	"github.com/marciodojr/datastructures/element"
 )
 
-type Element int
-
 type Stack struct {
-	c  []Element
+	c  []element.Element
 	mx sync.RWMutex
 }
 
 func NewStack() *Stack {
-	c := []Element{}
+	c := []element.Element{}
 
 	return &Stack{c, sync.RWMutex{}}
 }
 
-func (s *Stack) Push(e Element) {
+func (s *Stack) Push(e element.Element) {
 	s.mx.Lock()
 	s.c = append(s.c, e)
 	s.mx.Unlock()
 }
 
-func (s *Stack) Pop() (Element, error) {
+func (s *Stack) Pop() (element.Element, error) {
 	if s.IsEmpty() {
 		return 0, errors.New("stack is empty")
 	}
@@ -39,7 +39,7 @@ func (s *Stack) Pop() (Element, error) {
 	return e, nil
 }
 
-func (s *Stack) Top() (Element, error) {
+func (s *Stack) Top() (element.Element, error) {
 	if s.IsEmpty() {
 		return 0, errors.New("stack is empty")
 	}
