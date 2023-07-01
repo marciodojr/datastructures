@@ -9,8 +9,8 @@ import (
 )
 
 type List struct {
-	n  *element.Node
-	mx sync.RWMutex
+	head *element.Node
+	mx   sync.RWMutex
 }
 
 var errPrevIndexInvalid = errors.New("invalid index")
@@ -24,7 +24,7 @@ func (l *List) IsEmpty() bool {
 	l.mx.RLock()
 	defer l.mx.RUnlock()
 
-	return l.n == nil
+	return l.head == nil
 }
 
 func (l *List) Peek(i int) (element.Element, error) {
@@ -32,12 +32,12 @@ func (l *List) Peek(i int) (element.Element, error) {
 	defer l.mx.RUnlock()
 
 	if i == 0 {
-		return l.n.E, nil
+		return l.head.E, nil
 	}
 
 	p, err := l.prevNodeOfPos(i)
-	if err != nil {
-		return element.ZeroVal, fmt.Errorf("impossible to peek: %w", err)
+	if err != nil || p.Next == nil {
+		return element.ZeroVal, fmt.Errorf("impossible to peek: index out of range")
 	}
 
 	return p.Next.E, nil
@@ -48,24 +48,19 @@ func (l *List) Append(e element.Element) {
 		l.mx.Lock()
 		defer l.mx.Unlock()
 
-		l.n = element.NewNode(e)
+		l.head = element.NewNode(e)
 
 		return
 	}
 	l.mx.Lock()
 	defer l.mx.Unlock()
 
-	var p, n *element.Node
-	var c int
-
-	n = l.n
-	for n != nil {
-		c++
-		p = n
+	n := l.head
+	for n.Next != nil {
 		n = n.Next
 	}
 
-	p.Next = element.NewNode(e)
+	n.Next = element.NewNode(e)
 }
 
 func (l *List) Remove(i int) (element.Element, error) {
@@ -76,18 +71,20 @@ func (l *List) Remove(i int) (element.Element, error) {
 	l.mx.Lock()
 	defer l.mx.Unlock()
 
-	n := l.n
+	n := l.head
 	if i == 0 {
-		l.n = l.n.Next
-	} else {
-		p, err := l.prevNodeOfPos(i)
-		if err != nil {
-			return element.ZeroVal, fmt.Errorf("impossible to remove: %w", err)
-		}
+		l.head = l.head.Next
 
-		n = p.Next
-		p.Next = n.Next
+		return n.E, nil
 	}
+
+	p, err := l.prevNodeOfPos(i)
+	if err != nil || p.Next == nil {
+		return element.ZeroVal, fmt.Errorf("impossible to remove: index out of range")
+	}
+
+	n = p.Next
+	p.Next = n.Next
 
 	return n.E, nil
 }
@@ -97,21 +94,19 @@ func (l *List) prevNodeOfPos(i int) (*element.Node, error) {
 		return nil, errPrevIndexInvalid
 	}
 
-	n := l.n
-	p := n
+	n := l.head
 	c := 0
 
-	for n != nil && c < i {
+	for n.Next != nil && c < i-1 {
 		c++
-		p = n
 		n = n.Next
 	}
 
-	if c != i || n == nil {
+	if c != i-1 {
 		return nil, errPrevIndexOutOfRange
 	}
 
-	return p, nil
+	return n, nil
 }
 
 func (l *List) HasCycle() bool {
@@ -122,7 +117,7 @@ func (l *List) HasCycle() bool {
 	l.mx.RLock()
 	defer l.mx.RUnlock()
 
-	s := l.n
+	s := l.head
 	f := s.Next
 
 	for f != nil && f.Next != nil {

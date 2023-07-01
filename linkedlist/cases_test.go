@@ -61,7 +61,7 @@ var cycleCases = []struct {
 
 			l.Append(1)
 
-			l.n.Next = l.n
+			l.head.Next = l.head
 
 			return l
 		})(),
@@ -76,7 +76,7 @@ var cycleCases = []struct {
 			l.Append(2)
 
 			n1, _ := l.prevNodeOfPos(1)
-			n1.Next = l.n
+			n1.Next = l.head
 
 			return l
 		})(),
@@ -92,7 +92,7 @@ var cycleCases = []struct {
 			l.Append(3)
 
 			n1, _ := l.prevNodeOfPos(2)
-			n1.Next = l.n
+			n1.Next = l.head
 
 			return l
 		})(),
@@ -109,7 +109,7 @@ var cycleCases = []struct {
 			l.Append(4)
 
 			n1, _ := l.prevNodeOfPos(3)
-			n1.Next = l.n
+			n1.Next = l.head
 
 			return l
 		})(),
@@ -125,8 +125,9 @@ var cycleCases = []struct {
 			l.Append(3)
 			l.Append(4)
 
-			n1, _ := l.prevNodeOfPos(3)
-			n1.Next.Next = l.n.Next
+			n1, _ := l.prevNodeOfPos(4)
+			n2, _ := l.prevNodeOfPos(1)
+			n1.Next = n2.Next
 
 			return l
 		})(),
