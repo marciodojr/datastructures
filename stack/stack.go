@@ -8,20 +8,26 @@ import (
 )
 
 type Stack struct {
-	c  []element.Element
-	mx sync.RWMutex
+	head *element.Node
+	mx   sync.RWMutex
 }
 
 func NewStack() *Stack {
-	c := []element.Element{}
-
-	return &Stack{c, sync.RWMutex{}}
+	return &Stack{nil, sync.RWMutex{}}
 }
 
 func (s *Stack) Push(e element.Element) {
+	n := element.NewNode(e)
 	s.mx.Lock()
-	s.c = append(s.c, e)
-	s.mx.Unlock()
+	defer s.mx.Unlock()
+
+	if s.head == nil {
+		s.head = n
+	} else {
+		h := s.head
+		n.Next = h
+		s.head = n
+	}
 }
 
 func (s *Stack) Pop() (element.Element, error) {
@@ -29,31 +35,27 @@ func (s *Stack) Pop() (element.Element, error) {
 		return 0, errors.New("stack is empty")
 	}
 	s.mx.Lock()
+	defer s.mx.Unlock()
 
-	last := len(s.c) - 1
-	e := s.c[last]
-	s.c = s.c[:last]
+	h := s.head
+	s.head = s.head.Next
 
-	s.mx.Unlock()
-
-	return e, nil
+	return h.E, nil
 }
 
-func (s *Stack) Top() (element.Element, error) {
+func (s *Stack) Peek() (element.Element, error) {
 	if s.IsEmpty() {
 		return 0, errors.New("stack is empty")
 	}
 	s.mx.RLock()
-	e := s.c[len(s.c)-1]
 	s.mx.RUnlock()
 
-	return e, nil
+	return s.head.E, nil
 }
 
 func (s *Stack) IsEmpty() bool {
 	s.mx.RLock()
-	l := len(s.c)
-	s.mx.RUnlock()
+	defer s.mx.RUnlock()
 
-	return l == 0
+	return s.head == nil
 }

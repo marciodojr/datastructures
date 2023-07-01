@@ -39,7 +39,7 @@ func (q *QueueFromTwoStacks) Peek() (element.Element, error) {
 		q.shiftFromNewestToOldest()
 	}
 
-	e, err := q.stackOldestOnTop.Top()
+	e, err := q.stackOldestOnTop.Peek()
 
 	if err != nil {
 		return 0, fmt.Errorf("no element left to peek: %w", err)

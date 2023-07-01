@@ -3,18 +3,15 @@ package queue
 import (
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/marciodojr/datastructures/element"
 )
 
-type node struct {
-	e    element.Element
-	next *node
-}
-
 type Queue struct {
-	head *node
-	tail *node
+	head *element.Node
+	tail *element.Node
+	mx   sync.RWMutex
 }
 
 func New() *Queue {
@@ -22,6 +19,9 @@ func New() *Queue {
 }
 
 func (q *Queue) IsEmpty() bool {
+	q.mx.RLock()
+	defer q.mx.RUnlock()
+
 	return q.head == nil
 }
 
@@ -30,20 +30,29 @@ func (q *Queue) Peek() (element.Element, error) {
 		return element.ZeroVal, errors.New("impossible to peek. Queue is empty")
 	}
 
-	return q.head.e, nil
+	q.mx.RLock()
+	defer q.mx.RUnlock()
+
+	return q.head.E, nil
 }
 
 func (q *Queue) Add(e element.Element) {
-	n := &node{e, nil}
+	n := element.NewNode(e)
 
 	if q.IsEmpty() {
+		q.mx.Lock()
+		defer q.mx.Unlock()
+
 		q.tail = n
 		q.head = n
 
 		return
 	}
 
-	q.tail.next = n
+	q.mx.Lock()
+	defer q.mx.Unlock()
+
+	q.tail.Next = n
 	q.tail = n
 }
 
@@ -51,14 +60,16 @@ func (q *Queue) Remove() (element.Element, error) {
 	if q.IsEmpty() {
 		return element.ZeroVal, errors.New("impossible to remove. Queue is empty")
 	}
+	q.mx.Lock()
+	defer q.mx.Unlock()
 
 	n := q.head
-	q.head = q.head.next
+	q.head = q.head.Next
 	if q.head == nil {
 		q.tail = nil
 	}
 
-	return n.e, nil
+	return n.E, nil
 }
 
 func (q *Queue) String() string {
@@ -66,8 +77,8 @@ func (q *Queue) String() string {
 
 	n := q.head
 	for n != nil {
-		s = append(s, n.e)
-		n = n.next
+		s = append(s, n.E)
+		n = n.Next
 	}
 
 	return fmt.Sprint(s)

@@ -9,24 +9,24 @@ func TestPushPop(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			for i, e := range tc.pushArr {
 				s.Push(e)
-				currentTop, err := s.Top()
+				currentTop, err := s.Peek()
 				if err != nil {
-					t.Errorf("want nil receive %v on top after push %d", err, i)
+					t.Errorf("want nil receive %v on peek after push %d", err, i)
 				}
 
 				if currentTop != e {
-					t.Errorf("want %v receive %v on top after push %d", e, currentTop, i)
+					t.Errorf("want %v receive %v on peek after push %d", e, currentTop, i)
 				}
 			}
 
 			for i, e := range tc.popArr {
-				currentTop, err := s.Top()
+				currentTop, err := s.Peek()
 				if err != nil {
-					t.Errorf("want nil receive %v on top before pop %d", err, i)
+					t.Errorf("want nil receive %v on peek before pop %d", err, i)
 				}
 
 				if currentTop != e {
-					t.Errorf("want %v receive %v on top before top %d", e, currentTop, i)
+					t.Errorf("want %v receive %v on peek before top %d", e, currentTop, i)
 				}
 
 				r, err := s.Pop()
