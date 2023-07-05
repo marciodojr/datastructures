@@ -63,7 +63,39 @@ func (l *List) Append(e element.Element) {
 	n.Next = element.NewNode(e)
 }
 
-func (l *List) Remove(i int) (element.Element, error) {
+func (l *List) Prepend(e element.Element) {
+	if l.IsEmpty() {
+		l.Append(e)
+	}
+
+	l.mx.Lock()
+	defer l.mx.Unlock()
+
+	newHead := element.NewNode(e)
+	newHead.Next = l.head
+	l.head = newHead
+}
+
+func (l *List) RemoveElement(e element.Element) {
+	n := l.head
+	if n.E == e {
+		l.head = n.Next
+
+		return
+	}
+
+	for n.Next != nil {
+		if n.Next.E == e {
+			n.Next = n.Next.Next
+
+			return
+		}
+
+		n = n.Next
+	}
+}
+
+func (l *List) RemoveAt(i int) (element.Element, error) {
 	if l.IsEmpty() {
 		return element.ZeroVal, errors.New("impossible to remove: List is empty")
 	}

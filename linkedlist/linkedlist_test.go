@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestAppendPeekRemovePeek(t *testing.T) {
+func TestAppendPeekRemoveAtPeek(t *testing.T) {
 	l := New()
 	for _, tc := range lCases {
 		t.Run(tc.desc, func(t *testing.T) {
@@ -22,18 +22,18 @@ func TestAppendPeekRemovePeek(t *testing.T) {
 				}
 			}
 
-			e, _ := l.Remove(3)
+			e, _ := l.RemoveAt(3)
 			v := tc.values[3]
 			if e != v {
 				t.Errorf("peek at position %d, found %v want %v", 3, e, v)
 			}
-			e, _ = l.Remove(5)
+			e, _ = l.RemoveAt(5)
 			v = tc.values[6]
 			if e != v {
 				t.Errorf("peek at position %d, found %v want %v", 5, e, v)
 			}
 
-			e, _ = l.Remove(7)
+			e, _ = l.RemoveAt(7)
 			v = tc.values[9]
 			if e != v {
 				t.Errorf("peek at position %d, found %v want %v", 7, e, v)
